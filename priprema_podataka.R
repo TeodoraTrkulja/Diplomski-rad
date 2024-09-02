@@ -1,11 +1,11 @@
-dataset<-read.csv("stroke_prediction_dataset.csv",stringsAsFactors = F)
 dataset<-read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv",stringsAsFactors = F)
 str(dataset)
 
-#Instaliranje paketa
-install.packages("stringr")
+#Instaliranje paketa i učitavanje paketa u okviru biblioteke
 install.packages("dplyr")
 install.packages("ggplot2")
+library(ggplot2)
+library(dplyr)
 
 #provera nedostajućih vrednosti
 apply(dataset,MARGIN = 2,FUN = function(x) sum(is.na(x)))
@@ -61,11 +61,9 @@ dataset$StreamingTV<-as.factor(dataset$StreamingTV)
 dataset$StreamingMovies<-as.factor(dataset$StreamingMovies)
 dataset$PaperlessBilling<-as.factor(dataset$PaperlessBilling)
 dataset$PaymentMethod<-as.factor(dataset$PaymentMethod)
-dataset$Churn<-as.factor(dataset$Churn)
+dataset$Churn <- factor(dataset$Churn, levels = c("Yes", "No"))
 
 #Ispitivanje značajnosti varijabli preko plotova
-library(ggplot2)
-library(dplyr)
 
 #Density plots (geom_density) za numeričke varijable
 numeric_vars <- c("tenure", "MonthlyCharges", "TotalCharges")
@@ -86,8 +84,8 @@ for (var in numeric_vars) {
 #tenure, negativna klasa No najviše obuhvata visoke vrednosti ove varijable >60, dok Yes vrednosti <20 (varijabla je značajna)
 
 #Za kategoričke varijable, bar graf 
-categorical_vars <- c("gender", "SeniorCitizen", "Partner", "Dependents",
-                      "PhoneService", "InternetService",
+categorical_vars <- c( "SeniorCitizen", "Partner", "Dependents",
+                       "InternetService",
                       "OnlineSecurity", "OnlineBackup", "DeviceProtection",
                       "TechSupport", "StreamingTV", "StreamingMovies",
                       "Contract", "PaperlessBilling", "PaymentMethod")
