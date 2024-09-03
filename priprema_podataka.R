@@ -122,3 +122,4 @@ dataset$PhoneService<-NULL
 dataset$gender<-NULL
 
 saveRDS(dataset,file = "preprocessed_dataset.RDS")
+
