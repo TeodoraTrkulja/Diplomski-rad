@@ -104,18 +104,6 @@ down_inside <- train(x = trainSet[,-17],
                      metric = "ROC",
                      trControl = ctrl,
                      tuneGrid = cpGrid)
-cpValue_down<-down_inside$bestTune$cp
-cpValue_down
-tree_down.prediction<-predict(down_inside$finalModel,
-                          newdata=testSet,
-                          type="class")
-tree_down.cm<-table(true=testSet$Churn,
-                predicted=tree_down.prediction)
-
-eval.tree_down <- getEvaluationMetrics(tree_down.cm)
-eval.tree_down
-# Accuracy Precision    Recall        F1 
-#0.7178394 0.4797297 0.7613941 0.5886010 
 
 #up
 ctrl$sampling <- "up"
@@ -126,18 +114,6 @@ up_inside <- train(x = trainSet[,-17],
                    metric = "ROC",
                    trControl = ctrl,
                    tuneGrid = cpGrid)
-cpValue_up<-up_inside$bestTune$cp
-cpValue_up
-tree_up.prediction<-predict(up_inside$finalModel,
-                              newdata=testSet,
-                              type="class")
-tree_up.cm<-table(true=testSet$Churn,
-                    predicted=tree_up.prediction)
-
-eval.tree_up <- getEvaluationMetrics(tree_up.cm)
-eval.tree_up
-# Accuracy Precision    Recall        F1 
-#0.7405828 0.5072202 0.7533512 0.6062567 
 
 #rose
 ctrl$sampling <- "rose"
@@ -148,18 +124,6 @@ rose_inside <- train(x = trainSet[,-17],
                      metric = "ROC",
                      trControl = ctrl,
                      tuneGrid = cpGrid)
-cpValue_rose<-rose_inside$bestTune$cp
-cpValue_rose
-tree_rose.prediction<-predict(rose_inside$finalModel,
-                            newdata=testSet,
-                            type="class")
-tree_rose.cm<-table(true=testSet$Churn,
-                  predicted=tree_rose.prediction)
-
-eval.tree_rose <- getEvaluationMetrics(tree_rose.cm)
-eval.tree_rose
-#Accuracy Precision    Recall        F1 
-#0.2835821 0.1123321 0.2466488 0.1543624 
 
 #orig fit
 ctrl$sampling <- NULL
@@ -170,18 +134,6 @@ orig_fit <- train(x = trainSet[,-17],
                   metric = "ROC",
                   trControl = ctrl,
                   tuneGrid = cpGrid)
-cpValue_orig_fit<-orig_fit$bestTune$cp
-cpValue_orig_fit
-tree_orig_fit.prediction<-predict(orig_fit$finalModel,
-                              newdata=testSet,
-                              type="class")
-tree_orig_fit.cm<-table(true=testSet$Churn,
-                    predicted=tree_orig_fit.prediction)
-
-eval.tree_orig_fit <- getEvaluationMetrics(tree_orig_fit.cm)
-eval.tree_orig_fit
-# Accuracy Precision    Recall        F1 
-#0.7917555 0.6342282 0.5067024 0.5633383 
 
 inside_models <- list(original = orig_fit,
                       down = down_inside,
@@ -189,8 +141,28 @@ inside_models <- list(original = orig_fit,
                       ROSE = rose_inside)
 inside_resampling <- resamples(inside_models)
 summary(inside_resampling, metric = "ROC")
-#Zakljucujem da je original fit najbolji
+
+#Najbolji je up
+# ROC 
+# Min.   1st Qu.    Median      Mean   3rd Qu.      Max. NA's
+# original 0.7666245 0.7966941 0.8134756 0.8128483 0.8259276 0.8591385    0
+# down     0.7757595 0.8037017 0.8134914 0.8134851 0.8235183 0.8504026    0
+# up       0.7508916 0.7998792 0.8152295 0.8145790 0.8308718 0.8552184    0
+# ROSE     0.7631472 0.7963205 0.8084797 0.8099266 0.8228967 0.8461272    0
 
 
-data.frame(rbind(tree1.cm, tree2.cm,tree3.cm))
-data.frame(rbind(eval.tree1, eval.tree2,eval.tree_orig_fit), row.names = c("prvi","drugi","treći"))
+tree3.pred <- predict(up_inside$finalModel,
+                      newdata = testSet,
+                      type = "class")
+
+tree3.cm <- table(true = testSet$Churn,
+                  predicted = tree3.pred)
+tree3.cm
+
+eval.tree3 <- getEvaluationMetrics(tree3.cm)
+eval.tree3
+# Accuracy Precision    Recall        F1 
+#0.7405828 0.5072202 0.7533512 0.6062567 
+
+data.frame(rbind(tree1.cm, tree2.cm, tree3.cm))
+data.frame(rbind(eval.tree1, eval.tree2, eval.tree3), row.names = c("prvi","drugi","treći"))

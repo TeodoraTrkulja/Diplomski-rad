@@ -9,6 +9,7 @@ source("funkcija_matrica.R")
 #Instaliranje paketa i učitavanje paketa u okviru biblioteke
 install.packages("bnlearn")
 install.packages("naivebayes")
+install.packages("pROC")
 library(caret)
 library(rpart)
 library(e1071)
@@ -16,14 +17,6 @@ library(ROSE)
 library(pROC)
 library(naivebayes)
 library(bnlearn)
-install.packages("pROC")
-
-# Instaliraj recipes i tidymodels
-install.packages("recipes")
-install.packages("tidymodels")
-
-# Učitaj recipes paket
-library(recipes)
 
 
 #Ponovna provera da li numeričke varijable imaju normalnu raspodelu
@@ -91,101 +84,6 @@ eval.nb1
 #0.7142857 0.4760331 0.7721180 0.5889571
 
 #--------------------DRUGI MODEL--------------------
-#control
-ctrl <- trainControl(method = "repeatedcv", repeats = 5,
-                     classProbs = TRUE,
-                     summaryFunction = twoClassSummary,
-                     sampling = "down")
-grid <- expand.grid(laplace = 1, usekernel= FALSE, adjust = 1)
-
-#downSample
-set.seed(1)
-down_inside_nb <- train(x = trainSet[,-17], 
-                     y = trainSet$Churn,
-                     method = "naive_bayes",
-                     metric = "ROC",
-                     trControl = ctrl,
-                     tuneGrid = grid)
-cpValue_down<-down_inside_nb$bestTune$cp
-cpValue_down
-nb_down.prediction<-predict(down_inside_nb$finalModel,
-                            newdata=testSet,
-                            type="class")
-nb_down.cm<-table(true=testSet$Churn,
-                  predicted=nb_down.prediction)
-
-eval.nb_down <- getEvaluationMetrics(nb_down.cm)
-eval.nb_down
-# Accuracy Precision    Recall        F1 
-#0.6922530 0.4544073 0.8016086 0.5800194 
-
-#up
-ctrl$sampling <- "up"
-set.seed(1)
-up_inside_nb <- train(x = trainSet[,-17], 
-                   y = trainSet$Churn,
-                   method = "naive_bayes",
-                   metric = "ROC",
-                   trControl = ctrl,
-                   tuneGrid = grid)
-cpValue_up<-up_inside_nb$bestTune$cp
-cpValue_up
-nb_up.prediction<-predict(up_inside_nb$finalModel,
-                          newdata=testSet,
-                          type="class")
-nb_up.cm<-table(true=testSet$Churn,
-                predicted=nb_up.prediction)
-
-eval.nb_up <- getEvaluationMetrics(nb_up.cm)
-eval.nb_up
-# Accuracy Precision    Recall        F1 
-#0.6837242 0.4465875 0.8069705 0.5749761 
-
-#rose
-ctrl$sampling <- "rose"
-set.seed(1)
-rose_inside_nb <- train(x = trainSet[,-17], 
-                     y = trainSet$Churn,
-                     method = "naive_bayes",
-                     metric = "ROC",
-                     trControl = ctrl,
-                     tuneGrid = grid)
-cpValue_rose<-rose_inside_nb$bestTune$cp
-cpValue_rose
-nb_rose.prediction<-predict(rose_inside_nb$finalModel,
-                            newdata=testSet,
-                            type="class")
-nb_rose.cm<-table(true=testSet$Churn,
-                  predicted=nb_rose.prediction)
-
-eval.nb_rose <- getEvaluationMetrics(nb_rose.cm)
-eval.nb_rose
-#Accuracy Precision    Recall        F1 
-#0.31982942 0.09444444 0.18230563 0.12442818 
-
-#orig fit
-ctrl$sampling <- NULL
-set.seed(1)
-orig_fit_nb <- train(x = trainSet[,-17], 
-                  y = trainSet$Churn, 
-                  method = "naive_bayes",
-                  metric = "ROC",
-                  trControl = ctrl,
-                  tuneGrid = grid)
-cpValue_orig_fit<-orig_fit_nb$bestTune$cp
-cpValue_orig_fit
-nb_orig_fit.prediction<-predict(orig_fit_nb$finalModel,
-                                newdata=testSet,
-                                type="class")
-nb_orig_fit.cm<-table(true=testSet$Churn,
-                      predicted=nb_orig_fit.prediction)
-
-eval.nb_orig_fit <- getEvaluationMetrics(nb_orig_fit.cm)
-eval.nb_orig_fit
-# Accuracy Precision    Recall        F1 
-#0.7178394 0.4801325 0.7774799 0.5936540 
-
-#--------------------TREĆI MODEL--------------------
 
 nb2.pred.prob <- predict(nb1, newdata = testSet, type = "raw")
 nb2.pred.prob
@@ -200,9 +98,9 @@ nb2.roc$auc
 plot.roc(nb2.roc, print.thres = TRUE, print.thres.best.method = "youden")
 
 nb2.coords <- coords(nb2.roc,
-                            ret = c("accuracy","spec","sens","threshold"),
-                            x = "best",
-                            best.method = "youden")
+                     ret = c("accuracy","spec","sens","threshold"),
+                     x = "best",
+                     best.method = "youden")
 # accuracy specificity sensitivity threshold
 #threshold 0.7562189   0.7717602   0.7131367 0.7714423
 
@@ -227,7 +125,85 @@ eval.nb2
 
 
 
+#--------------------TREĆI MODEL--------------------
 
 
-data.frame(rbind(nb1.cm, nb2.cm,nb_down.cm))
-data.frame(rbind(eval.nb1, eval.nb_orig_fit,eval.nb2), row.names = c("prvi","drugi","treći"))
+#control
+ctrl <- trainControl(method = "repeatedcv", repeats = 5,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary,
+                     sampling = "down")
+grid <- expand.grid(laplace = 1, usekernel= FALSE, adjust = 1)
+
+#downSample
+set.seed(1)
+down_inside_nb <- train(x = trainSet[,-17], 
+                        y = trainSet$Churn,
+                        method = "naive_bayes",
+                        metric = "ROC",
+                        trControl = ctrl,
+                        tuneGrid = grid)
+
+#up
+ctrl$sampling <- "up"
+set.seed(1)
+up_inside_nb <- train(x = trainSet[,-17], 
+                      y = trainSet$Churn,
+                      method = "naive_bayes",
+                      metric = "ROC",
+                      trControl = ctrl,
+                      tuneGrid = grid)
+
+#rose
+ctrl$sampling <- "rose"
+set.seed(1)
+rose_inside_nb <- train(x = trainSet[,-17], 
+                        y = trainSet$Churn,
+                        method = "naive_bayes",
+                        metric = "ROC",
+                        trControl = ctrl,
+                        tuneGrid = grid)
+
+#orig fit
+ctrl$sampling <- NULL
+set.seed(1)
+orig_fit_nb <- train(x = trainSet[,-17], 
+                     y = trainSet$Churn, 
+                     method = "naive_bayes",
+                     metric = "ROC",
+                     trControl = ctrl,
+                     tuneGrid = grid)
+
+inside_models_nb <- list(original = orig_fit_nb,
+                         down = down_inside_nb,
+                         up = up_inside_nb,
+                         ROSE = rose_inside_nb)
+inside_resampling_nb <- resamples(inside_models_nb)
+summary(inside_resampling, metric = "ROC")
+#Najbolja je up
+#ROC 
+#Min.   1st Qu.    Median      Mean   3rd Qu.      Max. NA's
+#original 0.7666245 0.7966941 0.8134756 0.8128483 0.8259276 0.8591385    0
+#down     0.7757595 0.8037017 0.8134914 0.8134851 0.8235183 0.8504026    0
+#up       0.7508916 0.7998792 0.8152295 0.8145790 0.8308718 0.8552184    0
+#ROSE     0.7631472 0.7963205 0.8084797 0.8099266 0.8228967 0.8461272    0
+
+nb3.pred <- predict(up_inside_nb$finalModel, newdata = testSet[,-17], type = "class")
+
+nb3.cm <- table(true = testSet$Churn, predicted = nb3.pred)
+nb3.cm
+#     predicted
+#true  Yes  No
+#Yes 304  69
+#No  370 664
+eval.nb3 <- getEvaluationMetrics(nb3.cm)
+eval.nb3
+# Accuracy Precision    Recall        F1 
+#0.6879886 0.4510386 0.8150134 0.5807068 
+
+data.frame(rbind(nb1.cm, nb2.cm,nb3.cm))
+data.frame(rbind(eval.nb1,eval.nb2,eval.nb3), row.names = c("prvi","drugi","treći"))
+#       Accuracy Precision    Recall        F1
+#prvi  0.7142857 0.4760331 0.7721180 0.5889571
+#drugi 0.7562189 0.5298805 0.7131367 0.6080000
+#treći 0.6879886 0.4510386 0.8150134 0.5807068
