@@ -3,7 +3,7 @@ preprocessed_dataset<- readRDS("preprocessed_dataset.RDS")
 dataset <- preprocessed_dataset
 
 #Instaliranje paketa i učitavanje paketa u okviru biblioteke
-install.packages("rpart.plot")
+#install.packages("rpart.plot")
 library(caret)
 library(rpart)
 library(rpart.plot)

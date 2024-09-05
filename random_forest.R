@@ -7,16 +7,14 @@ str(dataset)
 source("funkcija_matrica.R")
 
 #Instaliranje paketa i učitavanje paketa u okviru biblioteke
-install.packages("bnlearn")
-install.packages("naivebayes")
 library(caret)
 library(ROSE)
 library(pROC)
 library(bnlearn)
 library(randomForest)
 library(themis)
-install.packages("randomForest")
-install.packages("themis")
+#install.packages("randomForest")
+#install.packages("themis")
 
 #Podela na test i trening 
 set.seed(100) 
@@ -113,7 +111,8 @@ rf2.eval
 
 #--------------------TREĆI MODEL--------------------
 
-grid <- expand.grid(mtry = c(2, 4, 6, 8, 10))
+m<- ncol(dataset) - 1
+grid <- expand.grid(mtry = c(m-2,m-1,m,m+1,m+2))
 
 train_control <- trainControl(method = "cv",
                      number = 5,
@@ -130,10 +129,10 @@ model_rf <- train(x = trainSet[,-17],
 model_rf$finalModel
 #Confusion matrix:
 #Yes   No class.error
-#Yes 772  724   0.4839572
-#No  414 3726   0.1000000
+#Yes 774  722   0.4826203
+#No  467 3673   0.1128019
 best_mtry <- model_rf$bestTune$mtry
-#2
+#14
 rf3 <- randomForest(Churn~., data = trainSet, mtry = best_mtry)
 
 rf3.pred <- predict(object = rf3, newdata = testSet, type = "class")
@@ -143,10 +142,15 @@ rf3.cm
 #     predicted
 #true  Yes  No
 #Yes 194 179
-#No  105 929
+#No  172 201
+#No  116 918
 rf3.eval <- getEvaluationMetrics(rf3.cm)
 rf3.eval
 # Accuracy Precision    Recall        F1 
-#0.7981521 0.6488294 0.5201072 0.5773810  
+#0.7746979 0.5972222 0.4611260 0.5204236
 
 data.frame(rbind(rf1.eval, rf2.eval, rf3.eval), row.names = c("prvi", "drugi", "treći"))
+#Accuracy Precision    Recall        F1
+#prvi  0.7917555 0.6408451 0.4879357 0.5540335
+#drugi 0.7377399 0.5033445 0.8069705 0.6199794
+#treći 0.7746979 0.5972222 0.4611260 0.5204236

@@ -7,9 +7,9 @@ str(dataset)
 source("funkcija_matrica.R")
 
 #Instaliranje paketa i učitavanje paketa u okviru biblioteke
-install.packages("bnlearn")
-install.packages("naivebayes")
-install.packages("pROC")
+#install.packages("bnlearn")
+#install.packages("naivebayes")
+#install.packages("pROC")
 library(caret)
 library(rpart)
 library(e1071)
@@ -104,7 +104,8 @@ nb2.coords <- coords(nb2.roc,
 # accuracy specificity sensitivity threshold
 #threshold 0.7562189   0.7717602   0.7131367 0.7714423
 
-threshold <- nb2.coords.youden[1,'threshold']
+
+threshold <- nb2.coords[1,'threshold']
 #0.7714423
 
 nb2.pred <- ifelse(test = nb2.pred.prob[,1]>= threshold,
@@ -179,7 +180,7 @@ inside_models_nb <- list(original = orig_fit_nb,
                          up = up_inside_nb,
                          ROSE = rose_inside_nb)
 inside_resampling_nb <- resamples(inside_models_nb)
-summary(inside_resampling, metric = "ROC")
+summary(inside_resampling_nb, metric = "ROC")
 #Najbolja je up
 #ROC 
 #Min.   1st Qu.    Median      Mean   3rd Qu.      Max. NA's
