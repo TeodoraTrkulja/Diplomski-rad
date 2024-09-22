@@ -1,7 +1,6 @@
 #Učitavanje sređenog dataseta
 preprocessed_dataset<- readRDS("preprocessed_dataset.RDS")
 dataset <- preprocessed_dataset
-
 #Instaliranje paketa i učitavanje paketa u okviru biblioteke
 #install.packages("rpart.plot")
 library(caret)
@@ -28,8 +27,13 @@ tree1 <- rpart(Churn ~ .,
            method = "class")
 tree1
 
-rpart.plot(tree1, extra = 104)
 
+png("stablo_odlucivanja1.png", width = 1200, height = 800, res = 150)
+rpart.plot(tree1, 
+           extra = 106,   
+           cex = 0.8,         
+           main = "Stablo odlučivanja") 
+dev.off()
 #Kreiranje predikcije za prvi model
 tree1.prediction<-predict(tree1,
                           newdata=testSet,
@@ -72,6 +76,14 @@ tree2 <- rpart(Churn~.,
                data = trainSet,
                method = "class",
                control = rpart.control(cp = cpValue))
+
+
+png("stablo_odlucivanja.png", width = 1200, height = 800, res = 150)
+rpart.plot(tree2, 
+           extra = 106,   
+           cex = 0.8,         
+           main = "Stablo odlučivanja") 
+dev.off()
 
 
 
@@ -150,7 +162,12 @@ summary(inside_resampling, metric = "ROC")
 # up       0.7508916 0.7998792 0.8152295 0.8145790 0.8308718 0.8552184    0
 # ROSE     0.7631472 0.7963205 0.8084797 0.8099266 0.8228967 0.8461272    0
 
-
+png("stablo_odlucivanja3.png", width = 1700, height = 1200, res = 150)
+rpart.plot(up_inside$finalModel, 
+           extra = 106,   
+           cex = 0.8,         
+           main = "Stablo odlučivanja") 
+dev.off()
 tree3.pred <- predict(up_inside$finalModel,
                       newdata = testSet,
                       type = "class")

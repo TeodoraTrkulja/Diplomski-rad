@@ -2,8 +2,8 @@ dataset<-read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv",stringsAsFactors = F)
 str(dataset)
 
 #Instaliranje paketa i učitavanje paketa u okviru biblioteke
-install.packages("dplyr")
-install.packages("ggplot2")
+#install.packages("dplyr")
+#install.packages("ggplot2")
 library(ggplot2)
 library(dplyr)
 
@@ -78,13 +78,14 @@ for (var in numeric_vars) {
            fill = "Churn",
            color = "Churn")
   )
-}
+} 
+
 #TotalCharges, što je vrednost manja, veći je broj izlazne varijable sa vrednošću Yes (varijabla je značajna)
 #MonthlyCharges,negativna klasa No najviše obuhvata niske vrednosti ove varijable, dok Yes vrednosti 75-100 (varijabla je značajna)
 #tenure, negativna klasa No najviše obuhvata visoke vrednosti ove varijable >60, dok Yes vrednosti <20 (varijabla je značajna)
 
 #Za kategoričke varijable, bar graf 
-categorical_vars <- c( "SeniorCitizen", "Partner", "Dependents",
+categorical_vars <- c( "gender","SeniorCitizen", "Partner", "Dependents",
                        "InternetService",
                       "OnlineSecurity", "OnlineBackup", "DeviceProtection",
                       "TechSupport", "StreamingTV", "StreamingMovies",
